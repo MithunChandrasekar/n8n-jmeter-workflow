@@ -1,0 +1,583 @@
+{
+  "name": "PerfTest",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b3bc1d38-a66f-4a46-9fe4-42207af93f57",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        -208
+      ],
+      "id": "240bbe40-df28-4bfc-bc85-515c5be375e7",
+      "name": "Slack Webhook",
+      "webhookId": "b3bc1d38-a66f-4a46-9fe4-42207af93f57",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "formTitle": "Coose your test",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Select the test your would like to run",
+              "fieldType": "radio",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Stress"
+                  },
+                  {
+                    "option": "Load"
+                  },
+                  {
+                    "option": "Function"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        -336
+      ],
+      "id": "2c756a3c-9e73-4fe0-b588-0ae4e6d179e7",
+      "name": "SelectTestForm",
+      "webhookId": "755e58a2-1eb8-413f-9ca6-9cc0f8d8005d"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      testType: $json[\"Select the test your would like to run\"],\n      submittedAt: $json.submittedAt,\n      formMode: $json.formMode\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -336
+      ],
+      "id": "0bd2b80c-21d1-42c1-9e4a-33135b1b4126",
+      "name": "RefineSelectrion"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "242c4488-d709-4b02-8fda-3199a807e0a5",
+              "leftValue": "={{ $json[\"value\"] && $json[\"value\"].length > 0 }}\n",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "eabaf658-7dec-4ff5-b68e-8cd456625e1f",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        -208
+      ],
+      "id": "4a9362aa-233d-4069-8e36-eaa339e5da7b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "https://graph.microsoft.com/v1.0/users?$filter=mail eq '{{$json[\"user\"][\"profile\"][\"email\"]}}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        -208
+      ],
+      "id": "f2777e4a-9a41-4160-9d0a-dd5b023a6c72",
+      "name": "AD Authorisation"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#all-tester",
+          "mode": "name"
+        },
+        "messageType": "block",
+        "blocksUi": "{\n  \"blocks\": [\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"Please submit your test parameters using the form below:\\n\\n<https://mithunxchandrasekar1.app.n8n.cloud/form/755e58a2-1eb8-413f-9ca6-9cc0f8d8005d|Click here to open the form>\"\n      }\n    }\n  ]\n}\n",
+        "text": "hi",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        768,
+        -320
+      ],
+      "id": "5a3a2b0b-0294-4655-a78c-45895662ae2d",
+      "name": "RolloutFormLink",
+      "webhookId": "2d8e3fa8-9276-47dd-a2ff-88fc9b069299",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHY8CcqsCyjZxWNc",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#all-tester",
+          "mode": "name"
+        },
+        "text": "the user is not authorised to run test",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        768,
+        -144
+      ],
+      "id": "bbf0a4a5-ab80-4924-b236-55c0870ae3bd",
+      "name": "NoAuthorisation",
+      "webhookId": "b5e1dd47-8e40-4a5a-82b9-7600f88ba715",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHY8CcqsCyjZxWNc",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://management.azure.com/subscriptions/<YOUR_SUBSCRIPTION_ID>/resourceGroups/<YOUR_RESOURCE_GROUP>/providers/Microsoft.Compute/virtualMachines/jmeter-vm-{{$json.testType}}?api-version=2023-03-01",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Authorization\": \"Bearer <AZURE_ACCESS_TOKEN>\",\n  \"Content-Type\": \"application/json\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"location\": \"eastus\",\n  \"properties\": {\n    \"hardwareProfile\": {\n      \"vmSize\": \"Standard_B1s\"\n    },\n    \"storageProfile\": {\n      \"imageReference\": {\n        \"publisher\": \"Canonical\",\n        \"offer\": \"0001-com-ubuntu-server-focal\",\n        \"sku\": \"20_04-lts-gen2\",\n        \"version\": \"latest\"\n      },\n      \"osDisk\": {\n        \"createOption\": \"FromImage\"\n      }\n    },\n    \"osProfile\": {\n      \"computerName\": \"jmeter-vm\",\n      \"adminUsername\": \"azureuser\",\n      \"adminPassword\": \"<YOUR_PASSWORD>\"\n    },\n    \"networkProfile\": {\n      \"networkInterfaces\": [\n        {\n          \"id\": \"/subscriptions/<YOUR_SUBSCRIPTION_ID>/resourceGroups/<YOUR_RESOURCE_GROUP>/providers/Microsoft.Network/networkInterfaces/jmeterNIC\"\n        }\n      ]\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1136,
+        -112
+      ],
+      "id": "8f4422d6-7a85-4697-8046-6b0c5ee8f1d2",
+      "name": "Create VM"
+    },
+    {
+      "parameters": {
+        "command": "=sudo apt update -y \nsudo apt install docker.io -y \nsudo systemctl enable \ndocker sudo systemctl start docker"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        784,
+        176
+      ],
+      "id": "53f6b1fb-a0f9-417f-aab9-b6936fd3d016",
+      "name": "InstallDependencies",
+      "credentials": {
+        "sshPassword": {
+          "id": "5Tbc4WLH30I44y7u",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=sudo docker pull justb4/jmeter\n"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        976,
+        176
+      ],
+      "id": "8ad27f79-1157-4c4a-904b-dd25548a0bb9",
+      "name": "PullingContainer",
+      "credentials": {
+        "sshPassword": {
+          "id": "5Tbc4WLH30I44y7u",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "command": "=sudo docker run --rm -v /home/azureuser/jmeter-results:/results justb4/jmeter \\\n  -n -t /test/test.jmx \\\n  -l /results/test-result.jtl \\\n  -JtestType={{$json.testType}} \\\n  -JtargetURL=https://c1e4cf32-660e-4610-a2c4-c672d1b03bf4.mock.pstmn.io/run-test\n"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        176
+      ],
+      "id": "72b099ad-8da7-49dc-80b2-d6f6e83aedd4",
+      "name": "ExecuteTest",
+      "credentials": {
+        "sshPassword": {
+          "id": "5Tbc4WLH30I44y7u",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const { execSync } = require('child_process');\n\n// Assume file is downloaded to /tmp/jmeter/test-result.jtl\nconst resultFile = '/tmp/jmeter/test-result.jtl';\n\n// Run your Python script\nconst output = execSync(`python3 /path/to/process_results.py ${resultFile}`);\nreturn [\n  {\n    json: {\n      summary: output.toString()\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        176
+      ],
+      "id": "954d704d-d830-4f82-bb11-1ce29ff01efc",
+      "name": "GetPythonResults"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09RV03AMUH",
+          "mode": "list",
+          "cachedResultName": "all-tester"
+        },
+        "text": "=✅ Test Completed: {{$json.summary}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1568,
+        176
+      ],
+      "id": "f9478a76-d1b6-4bb2-8550-db3f78ef80b9",
+      "name": "PostResults",
+      "webhookId": "7787d26c-bbba-48a4-bf4a-2b1f1c283a00",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHY8CcqsCyjZxWNc",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "path": "/home/azureuser/jmeter-results/test-result.jtl",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        352,
+        416
+      ],
+      "id": "054bf815-6a2e-4592-9ed3-f6b09707198a",
+      "name": "DownloadResultsFile",
+      "credentials": {
+        "sshPassword": {
+          "id": "5Tbc4WLH30I44y7u",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst csv = require('csv-parse/lib/sync');\n\nconst filePath = '/tmp/jmeter/test-result.jtl';\nconst content = fs.readFileSync(filePath, 'utf8');\n\nconst records = csv(content, {\n  columns: true,\n  skip_empty_lines: true\n});\n\nreturn [\n  {\n    json: {\n      jmeterData: records\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        416
+      ],
+      "id": "be41ba9e-0639-4a27-88ed-48f1b322495b",
+      "name": "FeedToAI"
+    },
+    {
+      "parameters": {
+        "resource": "conversation",
+        "messages": {
+          "values": [
+            {
+              "role": "assistant",
+              "content": "You are a JMeter test analyst. Answer questions based on the test data provided.\n"
+            },
+            {
+              "role": "={\n  \"role\": \"user\",\n  \"content\": \"JMeter test results: {{$json.jmeterData}}. Question: {{$json.userQuestion}}\"\n}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        768,
+        416
+      ],
+      "id": "b2d895e6-bf63-42f9-9d2b-3d701bdd6b20",
+      "name": "Conversation",
+      "credentials": {
+        "openAiApi": {
+          "id": "kj3kNfOOWwAf5575",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09RV03AMUH",
+          "mode": "list",
+          "cachedResultName": "all-tester"
+        },
+        "text": "=✅ Test Analysis Result: {{$json[\"choices\"][0].message.content}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        416
+      ],
+      "id": "c74b4589-8807-45fa-a2ec-0fe7c08bdbb1",
+      "name": "Results",
+      "webhookId": "89bf9b45-8023-43d2-9aab-0e3681b87d11",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "dHY8CcqsCyjZxWNc",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Webhook": {
+      "main": [
+        [
+          {
+            "node": "AD Authorisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SelectTestForm": {
+      "main": [
+        [
+          {
+            "node": "RefineSelectrion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RefineSelectrion": {
+      "main": [
+        [
+          {
+            "node": "Create VM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "RolloutFormLink",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "NoAuthorisation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AD Authorisation": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RolloutFormLink": {
+      "main": [
+        []
+      ]
+    },
+    "Create VM": {
+      "main": [
+        [
+          {
+            "node": "InstallDependencies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "InstallDependencies": {
+      "main": [
+        [
+          {
+            "node": "PullingContainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PullingContainer": {
+      "main": [
+        [
+          {
+            "node": "ExecuteTest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ExecuteTest": {
+      "main": [
+        [
+          {
+            "node": "GetPythonResults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetPythonResults": {
+      "main": [
+        [
+          {
+            "node": "PostResults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostResults": {
+      "main": [
+        [
+          {
+            "node": "DownloadResultsFile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DownloadResultsFile": {
+      "main": [
+        [
+          {
+            "node": "FeedToAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FeedToAI": {
+      "main": [
+        [
+          {
+            "node": "Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation": {
+      "main": [
+        [
+          {
+            "node": "Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c2503b51-5386-485f-8c26-6c942aebf570",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6d6a2b413c6ed66ccd22f930a66a061326f6e24e2a827feed2ec78fa21e6a2f2"
+  },
+  "id": "PoUFQqy6F9XwDTF2",
+  "tags": []
+}

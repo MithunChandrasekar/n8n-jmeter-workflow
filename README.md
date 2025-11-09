@@ -4,6 +4,6 @@
 
 Here’s the workflow diagram:
 
-![Workflow Diagram](images/workflow-diagram.png)
+![Workflow Diagram](workflow-diagram.png)
 
 

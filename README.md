@@ -6,7 +6,6 @@ Here’s the workflow diagram:
 
 Postman Mock server currently being tested
 https://c1e4cf32-660e-4610-a2c4-c672d1b03bf4.mock.pstmn.io
-To successfully call your mock server, you need to send:
 
 Request:
 POST https://c1e4cf32-660e-4610-a2c4-c672d1b03bf4.mock.pstmn.io/run-test
